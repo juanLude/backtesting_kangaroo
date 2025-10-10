@@ -1,8 +1,16 @@
 import requests
-import xlwings as xw
+import os
+from dotenv import load_dotenv
+# import xlwings as xw
 
-OANDA_API_KEY = "7203735f4489a07b1fdaa82e0825b643-037a13c8ecd863561ee2fb38166bda77"
-OANDA_URL = "https://api-fxpractice.oanda.com/v3/instruments/{}/candles"
+# load .env in development
+load_dotenv()  # safe: if .env missing, it just uses existing environment vars
+
+OANDA_API_KEY = os.environ["OANDA_API_KEY"]
+OANDA_URL = os.environ.get(
+    "OANDA_URL",
+    "https://api-fxpractice.oanda.com/v3/instruments/{}/candles"
+)
 symbols = ["XAU_USD", "AUD_USD"]
 
 def get_latest_candle(symbol):
@@ -16,14 +24,24 @@ def get_latest_candle(symbol):
             float(candle["mid"]["l"]),
             float(candle["mid"]["c"])]
 
-@xw.sub  # This makes the function callable from Excel
-def update_oanda_data():
-    wb = xw.Book.caller()             # The workbook calling the macro
-    sht = wb.sheets["Data"]           # Sheet where you want data
-    records = [get_latest_candle(s) for s in symbols]
+# @xw.sub  # This makes the function callable from Excel
+# def update_oanda_data():
+#     wb = xw.Book.caller()             # The workbook calling the macro
+#     sht = wb.sheets["Data"]           # Sheet where you want data
+#     records = [get_latest_candle(s) for s in symbols]
 
-    # Find the first empty row
-    last_row = sht.range("A" + str(sht.cells.last_cell.row)).end("up").row + 1
+#     # Find the first empty row
+#     last_row = sht.range("A" + str(sht.cells.last_cell.row)).end("up").row + 1
 
-    # Append records below existing data
-    sht.range(f"A{last_row}").value = records
+#     # Append records below existing data
+#     sht.range(f"A{last_row}").value = records
+
+
+# call the function directly for testing and showcase
+if __name__ == "__main__":
+    for symbol in symbols:
+        print(get_latest_candle(symbol))
+    # convert to DataFrame for exploration
+    import pandas as pd
+    df = pd.DataFrame([get_latest_candle(symbol) for symbol in symbols])
+    print(df)
