@@ -7,12 +7,12 @@ class CandlePlot:
         self.df_plot = df.copy()
         self.create_candle_fig()
 
-    def add_timestr(self, time_str):
+    def add_timestr(self):
         self.df_plot['sTime']=[dt.datetime.strftime(x,"s%y-%m-%d %H:%M") for x in self.df_plot.time] 
 
     
     def create_candle_fig(self):
-        self.add_timestr()
+        self.add_timestr() 
         self.fig = go.Figure()
         self.fig.add_trace(go.Candlestick(
             x=self.df_plot.sTime,
